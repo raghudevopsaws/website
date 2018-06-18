@@ -1,0 +1,49 @@
+--- #comments creating file
+- hosts: webnode
+  remote_user: ubuntu
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  serial: 1
+  pre_tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+    - name: Instance De-register
+      local_action:
+        aws_access_key: AKIAI2KTY2PGOLOKK5WA
+        aws_secret_key: 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
+        region: us-east-1
+        module: ec2_elb
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        state: absent
+  tasks:
+  - name: apache2
+    apt:
+      name: apache2
+      state: present
+  - file:
+      path: /var/www/html/index.html
+      state: absent
+  - name: copy file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+  - name: copy file
+    copy:
+      src: healthcheck.html
+      dest: /var/www/html/healthcheck.html
+  - name: apache2
+    service:
+      name: apache2 
+      state: restarted	
+  post_tasks:
+    - name: Instance Register
+      local_action:
+        aws_access_key: AKIAI2KTY2PGOLOKK5WA
+        aws_secret_key: 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
+        region: us-east-1
+        module: ec2_elb
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        ec2_elbs: "{{ item }}"
+        state: present
+      with_items: "{{ ec2_elbs }}"

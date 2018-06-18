@@ -1,0 +1,19 @@
+--- #comments creating file
+- hosts: webnode
+  remote_user: ubuntu
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  
+  tasks:
+  - ec2_ami:
+      instance_id: i-0c27ddcc910ad3432
+      aws_access_key: AKIAI2KTY2PGOLOKK5WA
+      aws_secret_key: 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
+      region: us-east-1
+      wait: false
+      name: newtest
+      tags:
+        Name: newtest1
+        Service: TestService
+ 
